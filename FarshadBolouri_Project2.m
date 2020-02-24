@@ -1,6 +1,6 @@
 %% Farshad Bolouri - R11630884 - Machine Learning - Project 2
 clear all
-rng(0);
+rng(31);
 %% Dataset 1 ,N_train = 10
 X_train= rand(10,1);  
 T_train = sin(2*pi*X_train) + mvnrnd(0,0.3,10);
