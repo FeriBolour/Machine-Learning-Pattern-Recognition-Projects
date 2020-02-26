@@ -1,13 +1,18 @@
 %% Farshad Bolouri - R11630884 - Machine Learning - Project 3 
 clear
 close all
-rng();    
+rng(100);    
 
 D = GenerateDataset(25,100);
 lambda = 0.085:0.1:4.5;
 phi = phiCal(D,100,25);
 [Y_average, Y, W] = Predict(D,phi,lambda,25);
-pltLine(D,Y{2},Y_average(:,2),lambda(2));
+%pltLine(D,Y{2},Y_average(:,2));
+[BiasSq Var BiasSq_Var] = BiasVarCal(Y_average,Y,D,25);
+figure
+hold on
+plot(log(lambda), BiasSq);
+plot(log(lambda), Var);
 %% Generate Dataset
 function D = GenerateDataset(N,L)
     D = cell(1,L);
@@ -70,13 +75,28 @@ Y = ones(N,length(D));
     end
 end
 %% BiasVarCal: This function Calculates Bias and Variance
-function [BiasSq Var] = BiasVarCal(Y_average,D,N)
-
-
-
+function [BiasSq Var BiasSq_Var] = BiasVarCal(Y_average,Y,D,N)
+   BiasSq = zeros(length(Y_average),1);
+   Var = zeros(length(Y_average),1);
+   X = D{1};
+   X = X(:,1);
+  for j=1:length(Y_average) 
+   for i =1:N
+       BiasSq(j) = BiasSq(j) + (Y_average(i,j)-sin(2*pi*X(i)))^2;
+       for k =1:length(D)
+          F = Y{j};
+          Var(j) = Var(j) + (F(i,k)-Y_average(i,j))^2;
+       end
+   end
+  end
+  
+  BiasSq = BiasSq/N;
+  Var = Var/(N*length(D));
+  BiasSq_Var = BiasSq + Var;
+  
 end
 %%
-function plt = pltLine(D,Y,Y_average,lambda)
+function plt = pltLine(D,Y,Y_average)
 figure
 hold on
 
