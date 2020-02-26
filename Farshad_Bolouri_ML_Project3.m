@@ -1,18 +1,20 @@
 %% Farshad Bolouri - R11630884 - Machine Learning - Project 3 
 clear
 close all
-rng(100);    
+
+rng(0);
 
 D = GenerateDataset(25,100);
-lambda = 0.085:0.1:4.5;
+lambda = 0.085:4.415/35:4.5;
 phi = phiCal(D,100,25);
 [Y_average, Y, W] = Predict(D,phi,lambda,25);
-%pltLine(D,Y{2},Y_average(:,2));
+% for i=1:length(Y)
+%     pltLine(D,Y{i},Y_average(:,i));
+% end
 [BiasSq Var BiasSq_Var] = BiasVarCal(Y_average,Y,D,25);
-figure
-hold on
-plot(log(lambda), BiasSq);
-plot(log(lambda), Var);
+
+plt(BiasSq,Var,BiasSq_Var,lambda);
+
 %% Generate Dataset
 function D = GenerateDataset(N,L)
     D = cell(1,L);
@@ -29,18 +31,17 @@ function phi = phiCal(D,L,N)
 phi_train = ones(length(cell2mat(D(1))),N);
 phi= cell(1,L);
 
-Mu = 0:1/25:1;
-
+Mu = sort(rand(8,1));
+%Mu = 0:1/7:1;
 
 for i =1:100
     X = cell2mat(D(i));
     X = X(:,1);
-    Mu = X;
-    for j =2:26
+    for j =2:9
         phi_train(:,j) = exp(-(X-Mu(j-1)).^2/(2*(0.1^2)));
 %        phi_test(:,j+1) = X_test.^j;
     end
-    phi(i) = mat2cell(phi_train,N,N+1);
+    phi(i) = mat2cell(phi_train,N,N);
 end
 end
 %% Predict function:
@@ -50,7 +51,7 @@ function [Y_average, Y, W] = Predict(D, phi,lambda,N)
     Y = cell(1,length(lambda));
     W = cell(1,length(lambda));
     for i = 1: length(lambda)
-        W(i) = mat2cell(WCal(D,phi,lambda(i),N),N+1,length(D));
+        W(i) = mat2cell(WCal(D,phi,lambda(i),N),N,length(D));
         Y(i) = mat2cell(YCal(W{i},phi,N,D),N,length(D));
         YCell = Y{i};
         Y_average(:,i) = mean(YCell,2);
@@ -59,7 +60,7 @@ function [Y_average, Y, W] = Predict(D, phi,lambda,N)
 end
 %% WCal: This function calculates Feature Vector (W)
 function W = WCal(D,phi,lambda,N)
-W = ones(N+1,length(D));
+W = ones(N,length(D));
 for i =1:length(D)
     T = cell2mat(D(i));
     T = T(:,2);
@@ -106,7 +107,6 @@ for i = 1:length(D)
     sorted=sortrows([(x(:,1)) y]);
     sorted_x = sorted(:,1);
     sorted_y = sorted(:,2);
-%     line(sorted_x,sorted_y,'Color','r')
     fitx=linspace(0,4,100);
     fity = interp1(sorted_x,sorted_y,fitx,'spline');
     line(fitx,fity,'Color','r','LineWidth',0.5);
@@ -124,3 +124,17 @@ end
     xlim([0 1])
     ylim([-2 2])
 end
+%% plt: Plots the figure includig Bias Squared, Variance, and their addition
+function y = plt(BiasSq,Var,BiasSq_Var,lambda)
+figure
+hold on
+plot(log(lambda), BiasSq ,'LineWidth',1.5);
+plot(log(lambda), Var,'LineWidth',1.5);
+plot(log(lambda), BiasSq_Var,'Color','magenta','LineWidth',1.5);
+xlim([-3 2]);
+ylim([0 0.15]);
+xticks(-3:2);
+yticks(0:0.03:0.15);
+legend('(bias)^{2}','Variance','(bias)^{2} + Variance','Location','northwest')
+end
+
