@@ -7,13 +7,21 @@ D = GenerateDataset(25,100);
 lambda = 0.085:0.1:4.5;
 phi = phiCal(D,100,25);
 [Y_average, Y, W] = Predict(D,phi,lambda,25);
-pltLine(D,Y{2},Y_average(:,2),lambda(2));
+
+% Y = ones(25,100);
+% for i = 1:100
+%     Y(:,i) = (cell2mat(phi(1,i)))*W(:,i);
+% end
+% XT = cell2mat(D(4));
+% hold on
+% plot(XT(:,1),XT(:,2),'X');
+% plot(XT(:,1),Y(:,4),'o');
 %% Generate Dataset
 function D = GenerateDataset(N,L)
     D = cell(1,L);
-    X_train= rand(N,1); 
+       
     for i =1:L
-        
+        X_train= rand(N,1);
         D(i) = mat2cell([X_train,(sin(2*pi*X_train)...
             + mvnrnd(0,0.3,N))],N,2);
     end
@@ -24,8 +32,7 @@ function phi = phiCal(D,L,N)
 phi_train = ones(length(cell2mat(D(1))),N);
 phi= cell(1,L);
 
-Mu = 0:1/25:1;
-
+%Mu = 0:1/25:1;
 
 for i =1:100
     X = cell2mat(D(i));
@@ -49,6 +56,11 @@ function [Y_average, Y, W] = Predict(D, phi,lambda,N)
         Y(i) = mat2cell(YCal(W{i},phi,N,D),N,length(D));
         YCell = Y{i};
         Y_average(:,i) = mean(YCell,2);
+%         for j = 1:length(D)
+%             YCell = Y{i};
+%             Y_average(:,i) =  Y_average(:,i)+ YCell(:,j);
+%         end
+%         Y_average(:,i) = Y_average(:,i)/length(D);
     end
     
 end
@@ -74,33 +86,4 @@ function [BiasSq Var] = BiasVarCal(Y_average,D,N)
 
 
 
-end
-%%
-function plt = pltLine(D,Y,Y_average,lambda)
-figure
-hold on
-
-for i = 1:length(D)
-    x = D{i};
-    y = Y(:,i);
-    sorted=sortrows([(x(:,1)) y]);
-    sorted_x = sorted(:,1);
-    sorted_y = sorted(:,2);
-%     line(sorted_x,sorted_y,'Color','r')
-    fitx=linspace(0,4,100);
-    fity = interp1(sorted_x,sorted_y,fitx,'spline');
-    line(fitx,fity,'Color','r','LineWidth',0.5);
-    xlim([0 1])
-    ylim([-2 2])
-end
-    %figure
-    %Y_average = mean(Y,2);
-    sorted=sortrows([(x(:,1)) Y_average]);
-    sorted_x = sorted(:,1);
-    sorted_y = sorted(:,2);
-    fitx=linspace(0,4,100);
-    fity = interp1(sorted_x,sorted_y,fitx,'spline');
-    line(fitx,fity,'Color','black','LineWidth',1.5);
-    xlim([0 1])
-    ylim([-2 2])
 end
