@@ -5,7 +5,7 @@ close all
 rng(41);
 
 D = GenerateDataset(25,100);
-lambda = 0.08:4.415/35:4.9;
+lambda = 0.085:4.415/35:4.5;
 phi = phiCal(D,100,25);
 [W_average, Y, W] = Predict(D,phi,lambda,25);
 %  for i=1:length(Y)
@@ -34,12 +34,12 @@ function phi = phiCal(D,L,N)
 phi_train = ones(length(cell2mat(D(1))),N);
 phi= cell(1,L);
 
-Mu = 0:1/13:1;
+Mu = 0:1/24:1;
 
 for i =1:L
     X = cell2mat(D(i));
     X = X(:,1);
-    for j =2:14
+    for j =2:25
         phi_train(:,j) = exp(-(X-Mu(j-1)).^2/(2*(0.1^2)));
     end
     phi(i) = mat2cell(phi_train,N,N);
@@ -80,6 +80,7 @@ end
 function [BiasSq Var BiasSq_Var] = BiasVarCal(W_average,W,D,N,phi,Y)
 BiasSq = zeros(length(W_average),1);
 Var = zeros(length(W_average),1);
+summation=[];
 %    
 %   D_t = mat2cell(rand(N,1),N,1);
 %   phi = phiCal(D_t,1,N);
@@ -100,7 +101,7 @@ Var = zeros(length(W_average),1);
        end
    end
    BiasSq = BiasSq/(N);
-   Var = Var/(N*length(D)*j/7);
+   Var = Var/(N*length(D)/);
    BiasSq_Var = BiasSq + Var;
   
 end
@@ -136,9 +137,9 @@ end
 function y = plt(BiasSq,Var,BiasSq_Var,lambda)
 figure
 hold on
-plot(log(lambda), BiasSq ,'LineWidth',2);
-plot(log(lambda), Var,'LineWidth',2);
-plot(log(lambda), BiasSq_Var,'Color','magenta','LineWidth',2);
+plot(log(lambda), BiasSq ,'LineWidth',1.5);
+plot(log(lambda), Var,'LineWidth',1.5);
+plot(log(lambda), BiasSq_Var,'Color','magenta','LineWidth',1.5);
 xlim([-3 2]);
 ylim([0 0.15]);
 xticks(-3:2);
