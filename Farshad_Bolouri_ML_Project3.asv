@@ -35,7 +35,7 @@ function [phi ,phi_test] = phiCal(D,L,N,X_test)
 
 phi= cell(1,L);
 
-Mu = 0:1/14:1;
+Mu = 0:1/15:1;
 
 phi_train = ones(length(cell2mat(D(1))),length(Mu));
 phi_test = ones(length(X_test),length(Mu));
@@ -44,13 +44,13 @@ for i =1:L
     X = cell2mat(D(i));
     X = X(:,1);
     
-    for j =2:15
+    for j =2:16
         phi_train(:,j) = exp(-(X-Mu(j-1)).^2/(2*(0.1^2)));
     end
     phi(i) = mat2cell(phi_train,N,length(Mu));
 end
 
-for j = 2:15
+for j = 2:1
     phi_test(:,j) = exp(-(X_test-Mu(j-1)).^2/(2*(0.1^2)));
 end
 
