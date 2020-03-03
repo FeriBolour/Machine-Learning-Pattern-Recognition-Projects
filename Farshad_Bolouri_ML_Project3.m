@@ -5,7 +5,7 @@ close all
 rng(41);
 
 [D ,X_test ,T_test] = GenerateDataset(25,100,1000);
-lambda = 0.08:4.415/35:4.9;
+lambda = 0.08:4.82/30:4.9;
 [phi, phi_test] = phiCal(D,100,25,X_test);
 [W_average, Y, W, Y_test] = Predict(D,phi,lambda,25,phi_test);
 
