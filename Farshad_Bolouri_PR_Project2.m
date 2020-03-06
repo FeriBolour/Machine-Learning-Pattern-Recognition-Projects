@@ -130,7 +130,15 @@ for i =1:length(S)
 end
 d = mean(W0);
 K=0;
+G = zeros(N,1);
 for i = 1:N
-    K(i,:) = exp(-(norm(X(i,:)-X))^2/(2*(sigma^2)));
+    for j = 1:N
+      K = K + (lambda(j)*Y(j)*...
+           exp(-(norm(X(j,:)-X(i,:)))^2/(2*(sigma^2))));   
+    end
+    G(i) = K + d;
+    K = 0;
 end
+
+plot(X(:,1),G,'X','Color','Cyan')
 end
