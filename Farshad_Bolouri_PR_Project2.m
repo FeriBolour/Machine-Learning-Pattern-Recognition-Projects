@@ -1,6 +1,6 @@
 %% Farshad Bolouri - R11630884 - Pattern Recognition - Project 2
-clear 
-close all
+%clear 
+%close all
 rng(100);
 class1=mvnrnd([1 3],[1 0; 0 1],60);
 class2=mvnrnd([4 1],[2 0; 0 2],40);
@@ -128,17 +128,24 @@ for i =1:length(S)
     end
     W0(i) = Y(S(i)) - G(i);
 end
-d = mean(W0);
+%d = mean(W0);
+d = W0(2);
 K=0;
-G = zeros(N,1);
-for i = 1:N
+[X_new,Y_new] = meshgrid(-2:0.1:6,-2:0.1:6); 
+G = zeros(length(reshape(X_new.',1,[])),1);
+
+for i = 1:length(reshape(X_new.',1,[]))
     for j = 1:N
+      X_reshape  = reshape(X_new.',1,[]);
+      Y_reshape  = reshape(Y_new.',1,[]);
       K = K + (lambda(j)*Y(j)*...
-           exp(-(norm(X(j,:)-X(i,:)))^2/(2*(sigma^2))));   
+          exp(-(norm(X(j,:)-transpose([X_reshape(i);Y_reshape(i)])))^2/(2*(sigma^2))));   
     end
     G(i) = K + d;
     K = 0;
 end
+G = reshape(G,size(X_new));
 
-plot(X(:,1),G,'X','Color','Cyan')
+contour(X_new,Y_new,transpose(G),[-2 -1 0],'Color','Cyan',...
+    'LineWidth',2)
 end
