@@ -97,10 +97,11 @@ end
 if flag == 1
     leg = legend('Location','best');
     leg.String(8:length(leg.String)) = [];
-else
-    ax= gcf;
-    gca(2).Legend = gca(1).Legend;
-    legend
+% else
+%      leg = legend('Location','best');
+% %     legend('class1','class2','Decision Boundary','Margin Boundary',...
+% %     'Margin Boundary','Inside or Misclass','','','','',''...
+% %     ,'On Margin','Location','best');
 end
 hold off
 end
