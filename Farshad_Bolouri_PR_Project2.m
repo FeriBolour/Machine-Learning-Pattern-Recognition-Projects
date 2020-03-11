@@ -16,7 +16,7 @@ misClassified_C2 = SVM(X,Y,100,class1,class2, 0);
 %% linearly nonseparable kernel SVM 
 misClassified_C3 = kernelSVM(1.75,X,Y,10,class1,class2);
 %SVM with C = 100
-%misClassified_C4 = SVM(X,Y,100,class1,class2, 0);
+misClassified_C4 = kernelSVM(1.75,X,Y,100,class1,class2);
 %% SVM: This function uses quadprog to calculcate SVM's and plots them
 function misClassified = SVM(X,Y,C,class1,class2,flag)
 figure
@@ -43,9 +43,9 @@ lambda = quadprog(H,f,A,b,Aeq,beq);
 S = find(lambda > 1e-4);
 W = X'*(lambda.*Y);
 W0 = Y(S) - X(S,:)*W;
-d=0; tol = 0;
+
 if flag == 1
-    d = W0(2)
+    d = W0(2);
     tol = 0.0001;
 else
     d =mean(W0);
@@ -72,36 +72,21 @@ h.DisplayName = 'Margin Boundary';
 str = sprintf("C=%.1f; Sup. Vec.=%d",C,length(W0));
 title(str);
 misClassified = 0;
-flag1 = 0; flag2 = 0;
+index1 = []; index2 = [];
 for  i = 1:N
     if abs(Y(i)*(X(i,:)*W + d) - 1) < tol
-        if flag1 == 0
-            plot(X(i,1),X(i,2),'bX','LineWidth',3,'MarkerSize',12,...
-                'DisplayName','On Margin');
-            flag1 = 1;
-        else
-            plot(X(i,1),X(i,2),'bX','LineWidth',3,'MarkerSize',12);
-        end
+        index1 =[index1 i];
     elseif Y(i)*(X(i,:)*W + d) < 1
-        if flag2 == 0
-            plot(X(i,1),X(i,2),'bO','LineWidth',2,'MarkerSize',2 ...
-                ,'MarkerFaceColor','b','DisplayName','Inside or Misclass');
-            flag2 = 1;
-        else
-            plot(X(i,1),X(i,2),'bO','LineWidth',2,'MarkerSize',2 ...
-                ,'MarkerFaceColor','b');
-        end
+        index2 = [index2 i];
         misClassified = misClassified + 1;
     end
 end
-if flag == 1
-    leg = legend('Location','best');
-    leg.String(8:length(leg.String)) = [];
-else
-    ax= gcf;
-    gca(2).Legend = gca(1).Legend;
-    legend
-end
+
+plot(X(index1,1),X(index1,2),'bX','LineWidth',3,'MarkerSize',12,...
+                'DisplayName','On Margin');
+plot(X(index2,1),X(index2,2),'bO','LineWidth',2,'MarkerSize',2 ...
+                ,'MarkerFaceColor','b','DisplayName','Inside or Misclass');
+legend
 hold off
 end
 %% kernelSVM: This function uses quadprog to calculcate kernelSVM's and plots them
@@ -149,7 +134,6 @@ for i =1:length(S)
     end
     W0(i) = Y(S(i)) - G(i);
 end
-%d = mean(W0);
 d = W0(2);
 K=0;
 [X_new,Y_new] = meshgrid(-2:0.1:6,-2:0.1:6); 
@@ -168,7 +152,7 @@ for i = 1:length(reshape(X_new.',1,[]))
 end
 G = reshape(G,size(X_new));
 
-contour(X_new,Y_new,transpose(G),[-1 8],'Color','Cyan',...
+contour(X_new,Y_new,transpose(G),[-1 10],'Color','Cyan',...
     'LineWidth',2)
 contour(X_new,Y_new,transpose(G),[-2 -1 0],'--','Color','Cyan',...
     'LineWidth',1)
@@ -183,19 +167,19 @@ for i = 1:N
     F(i) = K + d;
     K = 0;
 end
-
+index1 = []; index2 = [];
 for i =1 : length(S)
     if (abs(F(S(i)) +2) < 0.0001) || (abs(F(S(i))) < 0.0001)
-        plot(X(S(i),1),X(S(i),2),'bX','LineWidth',3,'MarkerSize',12);
+        index1 = [index1 , S(i)];
     else
-        plot(X(S(i),1),X(S(i),2),'bO','LineWidth',2,'MarkerSize',2 ...
-        ,'MarkerFaceColor','b');
+        index2 = [index2 , S(i)];
+        misClassified = misClassified + 1;
     end
 end
-
-
+plot(X(index1,1),X(index1,2),'bX','LineWidth',3,'MarkerSize',12);
+plot(X(index2,1),X(index2,2),'bO','LineWidth',2,'MarkerSize',2 ...
+        ,'MarkerFaceColor','b');
 legend('class1','class2','Decision Boundary','Margin Boundary',...
-    'Margin Boundary','Inside or Misclass','On Margin',...
-    'Location','best');
+    'On Margin','Inside or Misclass','Location','best');
 
 end
