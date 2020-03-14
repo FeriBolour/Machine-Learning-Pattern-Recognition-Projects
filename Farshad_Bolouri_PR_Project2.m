@@ -1,4 +1,4 @@
-%% Farshad Bolouri - R11630884 - Pattern Recognition - Project 2
+%% Farshad Bolouri - R11630884 - Pattern Recognition - Project 2 - Part 1 & 2
 clear 
 close all
 rng(100);
