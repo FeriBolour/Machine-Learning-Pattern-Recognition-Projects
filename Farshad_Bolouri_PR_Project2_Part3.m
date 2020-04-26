@@ -1,7 +1,7 @@
 %% Farshad Bolouri - R11630884 - Pattern Recognition - Project 2 - Part 3
 clear 
 close all
-time = zeros(8,91);
+time = zeros(8,46);
 i =1;
 
 for N =100:20:1000

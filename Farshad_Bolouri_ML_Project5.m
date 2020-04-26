@@ -43,7 +43,7 @@ rng(100)
 X=2*rand(1,50)-1;
 T=sin(2*pi*X)+0.3*randn(1,50);
 Title = 'Regression with 20 tanh units';
-[W1,W2,b1,b2] = NeuralNetwork(X,T,20,0.0039,3000,10,Title,'Regression');
+[W1,W2,b1,b2] = NeuralNetwork(X,T,20,0.01,3000,10,Title,'Regression');
 
 figure
 plot(X,T,'o')
@@ -60,9 +60,15 @@ end
 [D,N] = size(X);
 W1 = randn(n,D);
 W2 = randn(size(T,1),n);
+V_W1 = zeros(size(W1));
+V_W2 = zeros(size(W2));
 
 b1 = zeros(n,1);
 b2 = zeros(size(T,1),1);
+V_b1 = zeros(size(b1));
+V_b2 = zeros(size(b2));
+
+beta = 0.9;
 
 if strcmp(problemType,'Classification')
     h = @Sigmoid;
@@ -73,7 +79,7 @@ else
     h = @(X) tanh(X);
     H = @(X) X;
     h_prime = @(X) sech(X).^2;
-    %h_prime = @tanh_der;
+    %error = @(Y,T,N) sum(sum(0.5*(Y - T).^2));
     error = @(Y,T,N) mean((Y - T).^2);
 end
 
@@ -83,7 +89,6 @@ set(gca,'YScale','log');
 ylabel('Error')
 xlabel('Epochs')
 plt = animatedline('Color','r','LineWidth',1.5);
-a = tic;
 for i = 1:epochs
     B1 = repmat(b1,1,N);
     B2 = repmat(b2,1,N);
@@ -97,21 +102,24 @@ for i = 1:epochs
     Delta2 = (Z2 - T);
     Delta1 = (W2'*Delta2).*h_prime(A1);
     
-    W2 = W2 - rho*(Delta2*Z1');
-    W1 = W1 - rho*(Delta1*X');
-    b2 = b2 - rho*sum(Delta2,2);
-    b1 = b1 - rho*sum(Delta1,2);
+    V_W2 = beta*V_W2 +(1-beta)*(Delta2*Z1'); %Momentum
+    V_W1 = beta*V_W1 +(1-beta)*(Delta1*X');
+    W2 = W2 - rho*(V_W2);
+    W1 = W1 - rho*(V_W1);
+    
+    V_b2 = beta*V_b2 +(1-beta)*sum(Delta2,2);
+    V_b1 = beta*V_b1 +(1-beta)*sum(Delta1,2);
+    b2 = b2 - rho*V_b2;
+    b1 = b1 - rho*V_b1;
+    
     
     %Error
-    addpoints(plt,i,error(Z2,T,N));
-    b = toc(a);
-    if b > (1/1000)
-        drawnow % update screen every 1/30 seconds
-        a = tic; % reset timer after updating
+    if mod(i,10) -1 == 0
+        addpoints(plt,i,error(Z2,T,N));
+        drawnow
     end
-     
+    
 end
-drawnow
 end
 %% PredictNN function
 function Predictions = predictNN(X,W1,W2,b1,b2,problemType)
@@ -151,5 +159,5 @@ logP = [];
 for i = 1:N
     logP = [logP -log(Y(argmax(i),i))];
 end
-error = sum(logP)/N;
+error = sum(logP);
 end
