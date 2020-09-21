@@ -1,4 +1,4 @@
-%% Farshad Bolouri - R11630884 - Machine Learning - Project 5
+  %% Farshad Bolouri - R11630884 - Machine Learning - Project 5
 close all
 clear
 %% Part a - XOR Classification Problem
